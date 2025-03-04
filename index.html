@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela da Verdade</title>
+    <style>
+        #grid-container {
+            display: grid;
+            gap: 1px;
+            background-color: #ddd;
+            padding: 10px;
+        }
+        .grid-item {
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 1px solid #333;
+            height: 30px;
+            padding: 4px;
+        }
+        .grid-name {
+            background-color: #af4c4c;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 1px solid #333;
+            white-space: nowrap;
+            height: 30px;
+            padding: 4px;
+        }
+        #container {
+            display: flex;
+            justify-content: center; 
+            align-items: center;
+            height: 98vh; 
+            flex-direction: column;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="container">
+        <form>
+            <label>Sentenças</label>
+            <input type="text" id="txtbxQntVar">
+        </form>
+        <button onclick="pegarValor()">Pegar Valor</button>
+        <div>
+            <h1>Tabela da verdade</h1>
+        </div>
+        <div id="grid-container"></div>
+    </div>
+    <script src="logica.js"></script>
+</body>
+</html>
