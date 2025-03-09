@@ -38,8 +38,48 @@
             display: flex;
             justify-content: center; 
             align-items: center;
-            height: 98vh; 
+            min-height: 100vh; 
             flex-direction: column;
+        }
+        #fundoDeTabela{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: #2b2b2d;
+            padding-top: 14px;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-bottom: 18px;
+        }
+        #conteudo{
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            flex-direction: row;
+            background: #2b2b2d;
+            padding-top: 14px;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-bottom: 18px;
+        }
+        #direita{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: #2b2b2d;
+            flex-grow: 1;
+        }
+        #esquerda{
+            justify-content: center;
+            align-items: center;
+            background: #707091;
+            flex-grow: 1;
+            padding-top: 50px;
+            display: grid;
+            gap: 1px;
+            padding-bottom: 10px;
         }
 
     </style>
@@ -51,10 +91,17 @@
             <input type="text" id="txtbxQntVar">
         </form>
         <button onclick="pegarValor()">Pegar Valor</button>
-        <div>
-            <h1>Tabela da verdade</h1>
+        <div id="fundoDeTabela">
+            <h1 style="margin: 0;">Tabela da verdade</h1>
+            <div id="conteudo">
+                <div id="esquerda">
+                    <div></div>
+                </div>
+                <div id="direita">
+                    <div id="grid-container"></div>
+                </div>
+            </div>
         </div>
-        <div id="grid-container"></div>
     </div>
     <script src="logica.js"></script>
 </body>

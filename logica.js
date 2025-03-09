@@ -1,7 +1,8 @@
 let variaveis = [];
 let expressao = "";
 let tblDigital = [];
-let digitos = [];
+let digitos = { indicesNum: [], indicesOp: [], indicesComp: [], resultados: [] };
+let linhaAtiva = 0;
 
 document.addEventListener("DOMContentLoaded", function () {
     criarTopo(0);
@@ -14,6 +15,7 @@ function pegarValor() {
     const resultado = separarCaracteres(expressao);
 
     document.getElementById("grid-container").innerHTML = "";
+    document.getElementById("esquerda").innerHTML = "";
     tblDigital = [];
     variaveis = [];
     
@@ -47,7 +49,7 @@ function separarCaracteres(input) {
     let termosNumericos = [];
     if(/\d/.test(input)){
         digitos = indicesNumeros(input);
-console.log(digitos);
+//console.log(digitos);
         let numeros = digitos.indicesNum.map(obj => ({ ...obj }));
 
         digitos.indicesOp.forEach(element => {
@@ -72,11 +74,11 @@ console.log(digitos);
                 resultado = dgVar1 * dgVar2;
             }
 
-            console.log(var2);
+            //console.log(var2);
             numeros.splice(indxVar2, 1); //retira o indice da segunda variavel se tornando apenas 1
             numeros[indxVar2 - 1].digitos = resultado;
             numeros[indxVar2 - 1].exp = var1.exp + element.operador + var2.exp;
-            console.log(numeros);
+            //console.log(numeros);
         });
         digitos.indicesComp.forEach((element, i) => {
             let var1 = element;
@@ -99,16 +101,16 @@ console.log(digitos);
             } else if(element.comparador == ">="){
                 resultado = dgVar1 >= dgVar2;
             }
-            console.log(dgVar1 +" " + dgVar2)
+            //console.log(dgVar1 +" " + dgVar2)
             termosNumericos.push(var1.exp + element.comparador + var2.exp);
             digitos.resultados[i] = resultado;
         });
     }
 
-    /*console.log(digitos.indicesNum);
-    console.log(digitos.indicesOp);
-    console.log(digitos.indicesComp);
-    console.log(listaIndices);*/
+    //console.log(digitos.indicesNum);
+    //console.log(digitos.indicesOp);
+    //console.log(digitos.indicesComp);
+    //console.log(listaIndices);
 
     
     for (let i = 0; i < input.length; i++) {
@@ -174,15 +176,14 @@ console.log(digitos);
         let inicio = encontrarIndiceAnterior(termo, item.indice -1 ) + 1;
         let fim = encontrarIndicePosterior(termo, item.indice + 1);
 
-        let termoSubstituto = termo.substring(inicio, fim);
-        termo = termo.replaceAll(termoSubstituto, "x".repeat(termoSubstituto.length))
-        console.log(item);
-        console.log(inicio, item.indice, fim);
+        termo = rexizar(termo, inicio, fim);
+        //console.log(item);
+        //console.log(inicio, item.indice, fim);
         
         termo1 = input.substring(inicio, item.indice);
         termo2 = input.substring(item.indice + 1, fim);
 
-        console.log(termo1 + " " + item.caractere + " "  + termo2);
+        //console.log(termo1 + " " + item.caractere + " "  + termo2);
         let termoCompleto = termo1 + item.caractere + termo2;
 
         if((termoCompleto.includes("(") !== termoCompleto.includes(")")) || termosOU.includes(termoCompleto) || termosE.includes(termoCompleto)){
@@ -203,13 +204,11 @@ console.log(digitos);
 
         let inicio = encontrarIndiceAnterior(termo, item.indice -1 ) + 1;
         let fim = encontrarIndicePosterior(termo, item.indice + 1);
-        console.log(fim);
 
-        let termoSubstituto = termo.substring(inicio, fim);
-        termo = termo.replaceAll(termoSubstituto, "x".repeat(termoSubstituto.length))
-        //console.log(termo);
+        termo = rexizar(termo, inicio, fim);
         //console.log(inicio, item.indice, fim);
         
+        //console.log(termo);
         termo1 = input.substring(inicio, item.indice);
         termo2 = input.substring(item.indice + 1, fim);
 
@@ -243,6 +242,10 @@ console.log(digitos);
     if (index !== -1) {
         termosOU.splice(index, 1);
     }
+    index = termosNumericos.indexOf(expressao);
+    if (index !== -1) {
+        termosNumericos.splice(index, 1);
+    }
 
     termosnegativos.sort((a, b) => a.length - b.length);
     termosEmParenteses.sort((a, b) => a.length - b.length);
@@ -259,6 +262,13 @@ console.log(digitos);
         especiais
     };
 }
+
+function rexizar(texto, inicio, fim) {
+    return texto.substring(0, inicio) + 
+           "x".repeat(fim - inicio) + 
+           texto.substring(fim);
+}
+
 function encontrarIndiceMaisProximo(indicesNum, indiceDoComparador, pracima) {
     let indiceMaisProximo = null;
     let menorDiferenca = Infinity;
@@ -416,7 +426,7 @@ function criarTabelaDigital(vars, cols, semCombo){
     let rows = vars === 0 ? 0 : (2 ** vars);
     rows = vars === "d" ? 1 : (2 ** vars);
 
-    if(digitos.length > 0){
+    if(digitos.resultados.length > 0){
         for(let i = 0; i < digitos.resultados.length; i++){
             tblDigital[0][i] = digitos.resultados[i];
         }
@@ -450,11 +460,11 @@ function criarTabelaDigital(vars, cols, semCombo){
             listaInvertida.forEach(item => {
                 if(item === resultado) return;
                 resultado = resultado.replaceAll(item, "x".repeat(item.length));
-                //console.log(item + " " + resultado  + " " + variavel);
+                ////console.log(item + " " + resultado  + " " + variavel);
             });
             let indx = resultado.indexOf(resultado.match(/[^x\(\)\[\]~]/g) || []);
             if(indx == 0)indx = -1;
-            //console.log(indx + " " + resultado);
+            ////console.log(indx + " " + resultado);
             //∧∨ ぷ
             termo1 = variavel.substring(0,indx);
             termo2 = variavel.substring(indx + 1);
@@ -464,7 +474,7 @@ function criarTabelaDigital(vars, cols, semCombo){
             }if ((termo2.includes("(") !== termo2.includes(")")) || (termo2.includes("[") !== termo2.includes("]"))) {
                 termo2 = termo2.replace(/[\(\)\[\]]/g, "");
             }
-            console.log(termo1 + " v " + termo2);
+            //console.log(termo1 + " v " + termo2);
             const OUFora = variavel[indx] == "v";
             const EFora = variavel[indx] == "^";
             if(variaveis.some(t => t.includes(termo1)))
@@ -491,12 +501,19 @@ function criarTabelaDigital(vars, cols, semCombo){
         }
     }
 
-    console.log(tblDigital);
+    //console.log(tblDigital);
+}
+function focarLinha(row){
+    document.querySelectorAll(".grid-item").forEach(div => {
+        div.style.backgroundColor = div.getAttribute("corPadrao");
+        if(div.getAttribute("numeroDaLinha") == row && linhaAtiva != row){
+            div.style.backgroundColor = "#ffffff"
+        }
+    });
+    linhaAtiva = row;
 }
 
 function ajustarTabela(vars, cols){
-
-    console.log(tblDigital);
     const gridContainer = document.getElementById("grid-container");
     
     let rows = vars === 0 ? 0 : (2 ** vars);
@@ -505,11 +522,33 @@ function ajustarTabela(vars, cols){
     gridContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
     gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-    console.log(rows);
+    const esquerda = document.getElementById("esquerda");
+    if(vars > 0){
+        esquerda.style.width = "40px";
+        esquerda.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+        
+        for (let i = 1; i <= rows; i++) {
+            const cell = document.createElement("div");
+            cell.classList.add("grid-item");
+            cell.classList.add("itemClicavel");
+
+            cell.addEventListener("click", () => {
+                focarLinha(i);
+            });
+
+            cell.textContent = "◎";
+            cell.style.backgroundColor ="#223213";
+            cell.setAttribute("corPadrao", cell.style.backgroundColor);
+            
+            esquerda.appendChild(cell);
+        }
+    }
+
     for (let i = 1; i <= rows; i++) {
         for (let j = 1; j <= cols; j++) {
             const cell = document.createElement("div");
             cell.classList.add("grid-item");
+            cell.setAttribute("numeroDaLinha", i);
 
             if(tblDigital[i-1][j-1]){
                 cell.textContent = "V" ;
@@ -518,7 +557,7 @@ function ajustarTabela(vars, cols){
             else {
                 cell.textContent = "F" ;
             }
-
+            cell.setAttribute("corPadrao", cell.style.backgroundColor);
             gridContainer.appendChild(cell);
         }
     }
