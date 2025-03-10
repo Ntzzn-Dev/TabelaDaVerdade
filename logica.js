@@ -2,7 +2,46 @@ let variaveis = [];
 let expressao = "";
 let tblDigital = [];
 let digitos = { indicesNum: [], indicesOp: [], indicesComp: [], resultados: [] };
-let linhaAtiva = 0;
+
+//caracteres ∧ ∨
+
+function AddE(){
+    const txtbxTermo = document.getElementById("txtbxTermo");
+    let posicao = txtbxTermo.selectionStart; 
+
+    if (/[∨∧]/.test(txtbxTermo.value.slice(posicao - 1, posicao + 2))) {
+        console.log("tem");
+        return;
+    }
+
+    let novoTexto = txtbxTermo.value.slice(0, posicao) + "∧" + txtbxTermo.value.slice(posicao);
+    txtbxTermo.value = novoTexto;
+    txtbxTermo.selectionStart = txtbxTermo.selectionEnd = posicao + 1;
+    document.getElementById("txtbxTermo").focus();
+}
+function AddOU(){
+    const txtbxTermo = document.getElementById("txtbxTermo");
+    let posicao = txtbxTermo.selectionStart; 
+
+    if (/[∨∧]/.test(txtbxTermo.value.slice(posicao - 1, posicao + 2))) {
+        console.log("tem");
+        return;
+    }
+
+    let novoTexto = txtbxTermo.value.slice(0, posicao) + "∨" + txtbxTermo.value.slice(posicao);
+    txtbxTermo.value = novoTexto;
+    txtbxTermo.selectionStart = txtbxTermo.selectionEnd = posicao + 1;
+    document.getElementById("txtbxTermo").focus();
+}
+
+function Verificacao(termo, indice, obj) { //se o caracter anterior ou posterior for uma letra e o caracter atual tambem, ele é retirado
+    if ((/^[a-zAZ]$/.test(termo[indice - 1]) && /^[a-zA-Z]$/.test(termo[indice - 2]) || /^[a-zA-Z]$/.test(termo[indice])) || 
+        (/\d/.test(termo) && /^[a-zA-Z]$/.test(termo[indice - 1])) ||
+        (/^[a-zA-Z]/.test(termo) && /\d/.test(termo[indice - 1]))) 
+        {
+            obj.value = termo.slice(0, indice-1) + termo.slice(indice);
+        }
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     criarTopo(0);
@@ -10,8 +49,8 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function pegarValor() {
-    const txtbxQntVar = document.getElementById("txtbxQntVar");
-    expressao = txtbxQntVar.value;
+    const txtbxTermo = document.getElementById("txtbxTermo");
+    expressao = txtbxTermo.value;
     const resultado = separarCaracteres(expressao);
 
     document.getElementById("grid-container").innerHTML = "";
@@ -27,6 +66,7 @@ function pegarValor() {
     console.log("Termos or:", resultado.termosOU);
     console.log("Termos numericos:", resultado.termosNumericos);
     console.log("Caracteres negativos:", resultado.letrasnegativas);
+    variaveis.sort((a, b) => a.length - b.length);
 
     criarTabelaDigital(resultado.letras.length, variaveis.length);
     criarTopo(variaveis.length);
@@ -34,7 +74,7 @@ function pegarValor() {
 }
 
 function separarCaracteres(input) {
-    const caracteresEspeciais = ['^', 'v'];
+    const caracteresEspeciais = ['∧', '∨'];
     let letras = [];
     let termosnegativos = [];
     let letrasnegativas = [];
@@ -42,11 +82,11 @@ function separarCaracteres(input) {
     let termosOU = [];
     let termosEmParenteses = [];
     let especiais = [];
+    let termosNumericos = [];
 
     let listaIndices = indicesCaracteresEspeciais(input, caracteresEspeciais);
 
     
-    let termosNumericos = [];
     if(/\d/.test(input)){
         digitos = indicesNumeros(input);
 //console.log(digitos);
@@ -72,6 +112,8 @@ function separarCaracteres(input) {
                 resultado = dgVar1 / dgVar2;
             } else if(element.operador == "*"){
                 resultado = dgVar1 * dgVar2;
+            } else if(element.operador == "^"){
+                resultado = dgVar1 ** dgVar2;
             }
 
             //console.log(var2);
@@ -128,14 +170,14 @@ function separarCaracteres(input) {
 
         if (input[i] === "(" || input[i] === "[") {
             let termo = pegarParenteses(input[i] === "(" ? "(" : "[", i, input);
-            if(!termosNumericos.some(t => t.replace(/[\(\)\[\]]/g, "") === termo.replace(/[\(\)\[\]]/g, "")) && (termo.includes("v") || termo.includes("^")))
+            if(!termosNumericos.some(t => t.replace(/[\(\)\[\]]/g, "") === termo.replace(/[\(\)\[\]]/g, "")) && (termo.includes("∨") || termo.includes("∧")))
             {
                 termosEmParenteses.push(termo);
 
                 let indices = -1;
             
                 for (let j = 0; j < termo.length; j++) {
-                    if (termo[j] === "v" || termo[j] === "^") {
+                    if (termo[j] === "∨" || termo[j] === "∧") {
                         indices = j;
                     }
                 }
@@ -165,14 +207,15 @@ function separarCaracteres(input) {
     let termo = substituirPorX(input, letras);
     termo = substituirPorX(termo, termosNumericos);
 
-    console.log(primeiraParte);
-    console.log(segundaParte);
+    console.log(termosNumericos);
+    console.log(termo);
 
     primeiraParte.forEach(item => {
         let verdadeiroI = listaIndices.findIndex(t => t.indice == item.indice)
         
         listaIndices[verdadeiroI].disposicao = false;
 
+        console.log(termo);
         let inicio = encontrarIndiceAnterior(termo, item.indice -1 ) + 1;
         let fim = encontrarIndicePosterior(termo, item.indice + 1);
 
@@ -183,17 +226,16 @@ function separarCaracteres(input) {
         termo1 = input.substring(inicio, item.indice);
         termo2 = input.substring(item.indice + 1, fim);
 
-        //console.log(termo1 + " " + item.caractere + " "  + termo2);
+        console.log(termo1 + " " + item.caractere + " "  + termo2);
         let termoCompleto = termo1 + item.caractere + termo2;
 
         if((termoCompleto.includes("(") !== termoCompleto.includes(")")) || termosOU.includes(termoCompleto) || termosE.includes(termoCompleto)){
             termoCompleto = "";
         }
 
-        if(item.caractere == 'v' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){
-            //(a^b)v~[bv~c] evitar (a^b)v~ de entrar no OU
+        if(item.caractere == '∨' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){
             termosOU.push(termoCompleto);
-        } else if(item.caractere == '^' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
+        } else if(item.caractere == '∧' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
             termosE.push(termoCompleto);
         }
     });
@@ -208,20 +250,20 @@ function separarCaracteres(input) {
         termo = rexizar(termo, inicio, fim);
         //console.log(inicio, item.indice, fim);
         
-        //console.log(termo);
+        console.log(termo);
         termo1 = input.substring(inicio, item.indice);
         termo2 = input.substring(item.indice + 1, fim);
 
-        //console.log(termo1 + " " + item.caractere + " "  + termo2);
+        console.log(termo1 + " " + item.caractere + " "  + termo2);
         let termoCompleto = termo1 + item.caractere + termo2;
 
         if((termoCompleto.includes("(") !== termoCompleto.includes(")")) || termosOU.includes(termoCompleto) || termosE.includes(termoCompleto)){
             termoCompleto = "";
         }
 
-        if(item.caractere == 'v' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
+        if(item.caractere == '∨' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
             termosOU.push(termoCompleto);
-        } else if(item.caractere == '^' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
+        } else if(item.caractere == '∧' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
             termosE.push(termoCompleto);
         }
     });
@@ -299,7 +341,7 @@ function indicesNumeros(str) {
     let resultados = [];
     
     let regexNum = /(?<![\d)])[\(\)\[\]]*-?\d+[\(\)\[\]]*/g;
-    let regexOp = /(?<=[\d)])[\+\-*/]/g;  // ESCAPEI O +
+    let regexOp = /(?<=[\d)])[\^\+\-*/]/g;
     let regexComp = /[=><]+/g;
     
     let match;
@@ -313,7 +355,7 @@ function indicesNumeros(str) {
         });
     }
 
-    while ((match = regexOp.exec(str)) !== null) { //tomar cuidado com o negativo
+    while ((match = regexOp.exec(str)) !== null) {
         indicesOp.push({ 
             indice: match.index, 
             operador: match[0]
@@ -334,7 +376,7 @@ function encontrarIndiceAnterior(str, indiceInicial, ignorados = ["x", "~", ")",
     let i = indiceInicial;
 
     while (i >= 0 && ignorados.includes(str[i])) {
-        if(str[i] === ")" || str[i] === "]"){ignorados.push("v");ignorados.push("^");ignorados.push("(");ignorados.push("[");} 
+        if(str[i] === ")" || str[i] === "]"){ignorados.push("∨");ignorados.push("∧");ignorados.push("(");ignorados.push("[");} 
         if((str[i] === "(" || str[i] === "[") && str[i-1] != "~"){i--; break;}
         if((str[i] === "(" || str[i] === "[") && str[i-1] == "~"){i -= 2; break;}
         i--;
@@ -346,7 +388,7 @@ function encontrarIndicePosterior(str, indiceInicial, ignorados = ["x", "~", "("
     let i = indiceInicial;
     
     while (i < str.length && ignorados.includes(str[i])) {
-        if(str[i] === "(" || str[i] === "["){ignorados.push("v");ignorados.push("^");ignorados.push(")");ignorados.push("]");} 
+        if(str[i] === "(" || str[i] === "["){ignorados.push("∨");ignorados.push("∧");ignorados.push(")");ignorados.push("]");} 
         if(str[i] === ")" || str[i] === "]"){i++; break;} 
         i++;
     }
@@ -355,7 +397,7 @@ function encontrarIndicePosterior(str, indiceInicial, ignorados = ["x", "~", "("
 }
 
 function substituirPorX(str, listaPalavras) {
-    let regex = new RegExp(listaPalavras.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join("|"), "g");
+    let regex = new RegExp(listaPalavras.map(p => p.replace(/[.*+?^∧∨${}()|[\]\\]/g, '\\$&')).join("|"), "g");
     return str.replace(regex, match => "x".repeat(match.length));
 }
 
@@ -475,8 +517,8 @@ function criarTabelaDigital(vars, cols, semCombo){
                 termo2 = termo2.replace(/[\(\)\[\]]/g, "");
             }
             //console.log(termo1 + " v " + termo2);
-            const OUFora = variavel[indx] == "v";
-            const EFora = variavel[indx] == "^";
+            const OUFora = variavel[indx] == "∨";
+            const EFora = variavel[indx] == "∧";
             if(variaveis.some(t => t.includes(termo1)))
             {
                 let indice1 = variaveis.findIndex(t => t.replace(/[\(\)\[\]]/g, "").includes(termo1.replace(/[\(\)\[\]]/g, "")));
@@ -503,15 +545,34 @@ function criarTabelaDigital(vars, cols, semCombo){
 
     //console.log(tblDigital);
 }
+
 function focarLinha(row){
     document.querySelectorAll(".grid-item").forEach(div => {
-        div.style.backgroundColor = div.getAttribute("corPadrao");
-        if(div.getAttribute("numeroDaLinha") == row && linhaAtiva != row){
-            div.style.backgroundColor = "#ffffff"
-        }
+        const corFundo = window.getComputedStyle(div).backgroundColor;
+        if( div.getAttribute("corPadrao") != div.style.backgroundColor){
+            div.style.backgroundColor = div.getAttribute("corPadrao");
+        } else if(div.getAttribute("numeroDaLinha") == row){
+            div.style.backgroundColor = darkenColor(corFundo, 30);
+        } 
     });
-    linhaAtiva = row;
 }
+
+function darkenColor(rgb, fator) {
+    const resultado = rgb.match(/rgb\((\d+), (\d+), (\d+)\)/);
+    
+    if (!resultado) return rgb;
+
+    let r = parseInt(resultado[1]);
+    let g = parseInt(resultado[2]);
+    let b = parseInt(resultado[3]);
+
+    r = Math.max(0, r - fator);
+    g = Math.max(0, g - fator);
+    b = Math.max(0, b - fator);
+
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
 
 function ajustarTabela(vars, cols){
     const gridContainer = document.getElementById("grid-container");
@@ -537,7 +598,6 @@ function ajustarTabela(vars, cols){
             });
 
             cell.textContent = "◎";
-            cell.style.backgroundColor ="#223213";
             cell.setAttribute("corPadrao", cell.style.backgroundColor);
             
             esquerda.appendChild(cell);
@@ -552,10 +612,11 @@ function ajustarTabela(vars, cols){
 
             if(tblDigital[i-1][j-1]){
                 cell.textContent = "V" ;
-                cell.style.backgroundColor ="#223213";
+                cell.classList.add("grid-item-true");
             } 
             else {
                 cell.textContent = "F" ;
+                cell.classList.add("grid-item-false");
             }
             cell.setAttribute("corPadrao", cell.style.backgroundColor);
             gridContainer.appendChild(cell);
