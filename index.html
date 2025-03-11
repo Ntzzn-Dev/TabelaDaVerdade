@@ -9,14 +9,17 @@
 </head>
 <body>
     <div id="container">
-        <form style="width: 447px;">
+        <form> <!--Diminuir aqui-->
             <label>Sentença</label>
             <input type="text" id="txtbxTermo" oninput="Verificacao(txtbxTermo.value, txtbxTermo.selectionStart, this)" placeholder="Digite a sentença aqui...">
         </form>
         <div id="btns">
-            <div class="btnDiv" onclick="AddE()">"∧"</div>
-            <div class="btnDiv" onclick="pegarValor()">Gerar tabela</div>
-            <div class="btnDiv" onclick="AddOU()">"∨"</div>
+            <div class="btnDiv" id="addAnd" onclick="AddSinal('∧')">"∧"</div>
+            <div class="btnDiv" id="generateTable" onclick="pegarValor()">Gerar tabela</div>
+            <div class="btnDiv" id="addOr" onclick="AddSinal('∨')">"∨"</div>
+            <div class="btnDiv" id="addImpl" onclick="AddSinal('➝')">"➝"</div>
+            <div class="btnDiv" id="addXOR" onclick="AddSinal('⊕')">"⊕"</div>
+            <div class="btnDiv" id="addEqui" onclick="AddSinal('⟷')">"⟷"</div>
         </div>
         <div id="fundoDeTabela">
             <h1 style="margin: 0; color: rgb(221, 221, 221); font-family: cursive;">Tabela da verdade</h1>
