@@ -6,29 +6,38 @@
     <meta name="color-scheme" content="light">
     <title>Tabela da Verdade</title>
     <link rel="stylesheet" href="tabela.css">
+    <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M64 256l0-96 160 0 0 96L64 256zm0 64l160 0 0 96L64 416l0-96zm224 96l0-96 160 0 0 96-160 0zM448 256l-160 0 0-96 160 0 0 96zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32z"/></svg>'>
+    <!-- All rights reserved to Ntzzn.Dev -->
 </head>
 <body>
-    <div id="container">
-        <form> <!--Diminuir aqui-->
-            <label>Sentença</label>
-            <input type="text" id="txtbxTermo" oninput="Verificacao(txtbxTermo.value, txtbxTermo.selectionStart, this)" placeholder="Digite a sentença aqui...">
-        </form>
-        <div id="btns">
-            <div class="btnDiv" id="addAnd" onclick="AddSinal('∧')">"∧"</div>
-            <div class="btnDiv" id="generateTable" onclick="pegarValor()">Gerar tabela</div>
-            <div class="btnDiv" id="addOr" onclick="AddSinal('∨')">"∨"</div>
-            <div class="btnDiv" id="addImpl" onclick="AddSinal('➝')">"➝"</div>
-            <div class="btnDiv" id="addXOR" onclick="AddSinal('⊕')">"⊕"</div>
-            <div class="btnDiv" id="addEqui" onclick="AddSinal('⟷')">"⟷"</div>
-        </div>
-        <div id="fundoDeTabela">
-            <h1 style="margin: 0; color: rgb(221, 221, 221); font-family: cursive;">Tabela da verdade</h1>
-            <div id="conteudo">
-                <div id="esquerda">
-                    <div></div>
-                </div>
-                <div id="direita">
-                    <div id="grid-container"></div>
+    <div class="scroll-container">
+        <div id="container">
+            <form>
+                <label>Sentença</label>
+                <input type="text" id="txtbxTermo" placeholder="Digite a sentença aqui...">
+            </form>
+            <div id="btns" class="type">
+                <div class="btnDiv type" onclick="turnSign(event, 1)">Binário (1 - 0)</div>
+                <div class="btnDiv type active" onclick="turnSign(event, 2)">Lógico (V - F)</div>
+                <div class="btnDiv type" onclick="turnSign(event, 3)">Boolean (T - F)</div>
+            </div>
+            <div id="btns">
+                <div class="btnDiv" id="addAnd" onclick="addSinal('∧')">"∧"</div>
+                <div class="btnDiv" id="generateTable" onclick="pegarValor()">Gerar tabela</div>
+                <div class="btnDiv" id="addOr" onclick="addSinal('∨')">"∨"</div>
+                <div class="btnDiv" id="addImpl" onclick="addSinal('➝')">"➝"</div>
+                <div class="btnDiv" id="addXOR" onclick="addSinal('⊕')">"⊕"</div>
+                <div class="btnDiv" id="addEqui" onclick="addSinal('⟷')">"⟷"</div>
+            </div>
+            <div id="fundoDeTabela">
+                <h1 style="margin: 0; color: rgb(221, 221, 221); font-family: cursive;">Tabela da verdade</h1>
+                <div id="conteudo">
+                    <div id="esquerda">
+                        <div></div>
+                    </div>
+                    <div id="direita">
+                        <div id="grid-container"></div>
+                    </div>
                 </div>
             </div>
         </div>

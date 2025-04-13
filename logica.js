@@ -1,16 +1,35 @@
+//All rights reserved to Ntzzn.Dev
+
 let variaveis = [];
 let expressao = "";
 let tblDigital = [];
 let digitos = { indicesNum: [], indicesOp: [], indicesComp: [], resultados: [] };
 
-//caracteres ∧ ∨
+let valorEscolhido = 1;
+const tipoDeValor = {
+    "1": ["V", "F"],
+    "2": ["T", "F"],
+    "3": ["1", "0"]
+};
 
-function AddSinal(sinal){
+function turnSign(event, valorAUsar){
+    document.querySelectorAll(".type").forEach(el => {
+        el.classList.remove("active");
+      });
+    
+      const el = event.currentTarget;
+      el.classList.add("active");
+    
+    valorEscolhido = valorAUsar;
+}
+
+//caracteres ∨ ∧ ➝ ⟷ ⊕
+
+function addSinal(sinal){
     const txtbxTermo = document.getElementById("txtbxTermo");
     let posicao = txtbxTermo.selectionStart; 
 
     if (/[∨∧➝⟷⊕]/.test(txtbxTermo.value.slice(posicao - 1, posicao + 2))) {
-        console.log("tem");
         return;
     }
 
@@ -18,15 +37,6 @@ function AddSinal(sinal){
     txtbxTermo.value = novoTexto;
     txtbxTermo.selectionStart = txtbxTermo.selectionEnd = posicao + 1;
     document.getElementById("txtbxTermo").focus();
-}
-
-function Verificacao(termo, indice, obj) { //se o caracter anterior ou posterior for uma letra e o caracter atual tambem, ele é retirado
-    if ((/^[a-zAZ]$/.test(termo[indice - 1]) && /^[a-zA-Z]$/.test(termo[indice - 2]) || /^[a-zA-Z]$/.test(termo[indice])) || 
-        (/\d/.test(termo) && /^[a-zA-Z]$/.test(termo[indice - 1])) ||
-        (/^[a-zA-Z]/.test(termo) && /\d/.test(termo[indice - 1]))) 
-        {
-            obj.value = termo.slice(0, indice-1) + termo.slice(indice);
-        }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -51,6 +61,7 @@ function pegarValor() {
     variaveis = [];
     
     variaveis.push(...resultado.letras, ...resultado.termosNumericos, ...resultado.letrasnegativas, ...resultado.termosEmParenteses, ...resultado.termosnegativos, ...resultado.termosE, ...resultado.termosOU, ...resultado.termosImpl, ...resultado.termosEqui, ...resultado.termosXOR, expressao);
+    /* For Debug
     console.log("Caracteres Especiais:", resultado.especiais);
     console.log("Termos negativos:", resultado.termosnegativos);
     console.log("Termos em parenteses:", resultado.termosEmParenteses);
@@ -60,7 +71,7 @@ function pegarValor() {
     console.log("Termos implicantes:", resultado.termosImpl);
     console.log("Termos equivalentes:", resultado.termosEqui);
     console.log("Termos numericos:", resultado.termosNumericos);
-    console.log("Caracteres negativos:", resultado.letrasnegativas);
+    console.log("Caracteres negativos:", resultado.letrasnegativas);*/
     variaveis.sort((a, b) => a.length - b.length);
 
     criarTabelaDigital(resultado.letras.length, variaveis.length);
@@ -69,7 +80,8 @@ function pegarValor() {
 }
 
 function separarCaracteres(input) {
-    const caracteresEspeciais = ['∧', '∨', '➝', '⟷', '⊕'];
+    const caracteresEspeciais = ['∧', '∨', '⊕'];
+    const setasEspeciais = ['➝', '⟷'];
     let letras = [];
     let termosnegativos = [];
     let letrasnegativas = [];
@@ -83,6 +95,7 @@ function separarCaracteres(input) {
     let termosNumericos = [];
 
     let listaIndices = indicesCaracteresEspeciais(input, caracteresEspeciais);
+    let listaIndicesSetas = indicesCaracteresEspeciais(input, setasEspeciais);
 
     
     if(/\d/.test(input)){
@@ -114,11 +127,9 @@ function separarCaracteres(input) {
                 resultado = dgVar1 ** dgVar2;
             }
 
-            //console.log(var2);
-            numeros.splice(indxVar2, 1); //retira o indice da segunda variavel se tornando apenas 1
+            numeros.splice(indxVar2, 1);
             numeros[indxVar2 - 1].digitos = resultado;
             numeros[indxVar2 - 1].exp = var1.exp + element.operador + var2.exp;
-            //console.log(numeros);
         });
         digitos.indicesComp.forEach((element, i) => {
             let var1 = element;
@@ -141,7 +152,7 @@ function separarCaracteres(input) {
             } else if(element.comparador == ">="){
                 resultado = dgVar1 >= dgVar2;
             }
-            //console.log(dgVar1 +" " + dgVar2)
+            
             termosNumericos.push(var1.exp + element.comparador + var2.exp);
             digitos.resultados[i] = resultado;
         });
@@ -193,32 +204,28 @@ function separarCaracteres(input) {
 
     let primeiraParte = listaIndices.filter((_, index) => index % 2 === 0);
     let segundaParte = listaIndices.filter((_, index) => index % 2 !== 0).reverse();
+    //exclusivo para setas
+    let terceiraParte = listaIndicesSetas.filter((_, index) => index % 2 === 0);
+    let quartaParte = listaIndicesSetas.filter((_, index) => index % 2 !== 0).reverse(); 
 
     let termo1 = "";
     let termo2 = "";
     let termo = substituirPorX(input, letras);
     termo = substituirPorX(termo, termosNumericos);
 
-    console.log(termosNumericos);
-    console.log(termo);
-
     primeiraParte.forEach(item => {
         let verdadeiroI = listaIndices.findIndex(t => t.indice == item.indice)
         
         listaIndices[verdadeiroI].disposicao = false;
 
-        console.log(termo);
         let inicio = encontrarIndiceAnterior(termo, item.indice -1 ) + 1;
         let fim = encontrarIndicePosterior(termo, item.indice + 1);
 
         termo = rexizar(termo, inicio, fim);
-        //console.log(item);
-        //console.log(inicio, item.indice, fim);
         
         termo1 = input.substring(inicio, item.indice);
         termo2 = input.substring(item.indice + 1, fim);
 
-        console.log(termo1 + " " + item.caractere + " "  + termo2);
         let termoCompleto = termo1 + item.caractere + termo2;
 
         if((termoCompleto.includes("(") !== termoCompleto.includes(")")) || termosOU.includes(termoCompleto) || termosE.includes(termoCompleto) || termosImpl.includes(termoCompleto) || termosEqui.includes(termoCompleto) || termosXOR.includes(termoCompleto)){
@@ -229,10 +236,6 @@ function separarCaracteres(input) {
             termosOU.push(termoCompleto);
         } else if(item.caractere == '∧' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){
             termosE.push(termoCompleto);
-        } else if(item.caractere == '➝' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
-            termosImpl.push(termoCompleto);
-        } else if(item.caractere == '⟷' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
-            termosEqui.push(termoCompleto);
         } else if(item.caractere == '⊕' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
             termosXOR.push(termoCompleto);
         }
@@ -247,11 +250,9 @@ function separarCaracteres(input) {
 
         termo = rexizar(termo, inicio, fim);
         
-        console.log(termo);
         termo1 = input.substring(inicio, item.indice);
         termo2 = input.substring(item.indice + 1, fim);
 
-        console.log(termo1 + " " + item.caractere + " "  + termo2);
         let termoCompleto = termo1 + item.caractere + termo2;
 
         if((termoCompleto.includes("(") !== termoCompleto.includes(")")) || termosOU.includes(termoCompleto) || termosE.includes(termoCompleto) || termosImpl.includes(termoCompleto) || termosEqui.includes(termoCompleto) || termosXOR.includes(termoCompleto)){
@@ -262,14 +263,61 @@ function separarCaracteres(input) {
             termosOU.push(termoCompleto);
         } else if(item.caractere == '∧' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
             termosE.push(termoCompleto);
-        } else if(item.caractere == '➝' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
-            termosImpl.push(termoCompleto);
-        } else if(item.caractere == '⟷' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
-            termosEqui.push(termoCompleto);
         } else if(item.caractere == '⊕' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
             termosXOR.push(termoCompleto);
         }
     });
+    terceiraParte.forEach(item => {
+        let verdadeiroI = listaIndicesSetas.findIndex(t => t.indice == item.indice)
+        
+        listaIndicesSetas[verdadeiroI].disposicao = false;
+
+        let inicio = encontrarIndiceAnterior(termo, item.indice -1) + 1;
+        let fim = encontrarIndicePosterior(termo, item.indice + 1);
+
+        termo = rexizar(termo, inicio, fim);
+        
+        termo1 = input.substring(inicio, item.indice);
+        termo2 = input.substring(item.indice + 1, fim);
+
+        let termoCompleto = termo1 + item.caractere + termo2;
+
+        if((termoCompleto.includes("(") !== termoCompleto.includes(")")) || termosOU.includes(termoCompleto) || termosE.includes(termoCompleto) || termosImpl.includes(termoCompleto) || termosEqui.includes(termoCompleto) || termosXOR.includes(termoCompleto)){
+            termoCompleto = "";
+        }
+
+        if(item.caractere == '➝' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
+            termosImpl.push(termoCompleto);
+        } else if(item.caractere == '⟷' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
+            termosEqui.push(termoCompleto);
+        }
+    });
+    quartaParte.forEach(item => {
+        let verdadeiroI = listaIndicesSetas.findIndex(t => t.indice == item.indice)
+        
+        listaIndicesSetas[verdadeiroI].disposicao = false;
+
+        let inicio = encontrarIndiceAnterior(termo, item.indice -1) + 1;
+        let fim = encontrarIndicePosterior(termo, item.indice + 1);
+
+        termo = rexizar(termo, inicio, fim);
+        
+        termo1 = input.substring(inicio, item.indice);
+        termo2 = input.substring(item.indice + 1, fim);
+
+        let termoCompleto = termo1 + item.caractere + termo2;
+
+        if((termoCompleto.includes("(") !== termoCompleto.includes(")")) || termosOU.includes(termoCompleto) || termosE.includes(termoCompleto) || termosImpl.includes(termoCompleto) || termosEqui.includes(termoCompleto) || termosXOR.includes(termoCompleto)){
+            termoCompleto = "";
+        }
+
+        if(item.caractere == '➝' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
+            termosImpl.push(termoCompleto);
+        } else if(item.caractere == '⟷' && (termo1 + termo2).length < input.length && !termosEmParenteses.some(t => t.replace(/[\(\)\[\]]/g, "") === termoCompleto.replace(/[\(\)\[\]]/g, "")) && termoCompleto != ""){ 
+            termosEqui.push(termoCompleto);
+        }
+    });
+    
 
     let index = termosnegativos.indexOf(expressao);
     if (index !== -1) {
@@ -422,30 +470,6 @@ function substituirPorX(str, listaPalavras) {
     return str.replace(regex, match => "x".repeat(match.length));
 }
 
-function primeiroEUltimoCaractereEspecial(str, especiais) {
-    let primeiro = null;
-    let ultimo = null;
-    let primeiroIndex = Infinity;
-    let ultimoIndex = -1;
-
-    especiais.forEach(caractere => {
-        let index = str.indexOf(caractere);
-        let lastIndex = str.lastIndexOf(caractere);
-
-        if (index !== -1 && index < primeiroIndex) {
-            primeiroIndex = index;
-            primeiro = caractere;
-        }
-
-        if (lastIndex !== -1 && lastIndex > ultimoIndex) {
-            ultimoIndex = lastIndex;
-            ultimo = caractere;
-        }
-    });
-
-    return { primeiro, ultimo, primeiroIndex, ultimoIndex };
-}
-
 function indicesCaracteresEspeciais(str, especiais) {
     let indices = [];
 
@@ -523,12 +547,10 @@ function criarTabelaDigital(vars, cols, semCombo){
             listaInvertida.forEach(item => {
                 if(item === resultado) return;
                 resultado = resultado.replaceAll(item, "x".repeat(item.length));
-                ////console.log(item + " " + resultado  + " " + variavel);
             });
             let indx = resultado.indexOf(resultado.match(/[^x\(\)\[\]~]/g) || []);
             if(indx == 0)indx = -1;
-            ////console.log(indx + " " + resultado);
-            //∧∨ ぷ
+
             termo1 = variavel.substring(0,indx);
             termo2 = variavel.substring(indx + 1);
 
@@ -537,7 +559,6 @@ function criarTabelaDigital(vars, cols, semCombo){
             }if ((termo2.includes("(") !== termo2.includes(")")) || (termo2.includes("[") !== termo2.includes("]"))) {
                 termo2 = termo2.replace(/[\(\)\[\]]/g, "");
             }
-            //console.log(termo1 + " v " + termo2);
             const OUFora = variavel[indx] == "∨";
             const EFora = variavel[indx] == "∧";
             const ImplFora = variavel[indx] == "➝";
@@ -590,8 +611,6 @@ function criarTabelaDigital(vars, cols, semCombo){
             }
         }
     }
-
-    //console.log(tblDigital);
 }
 
 function focarLinha(row){
@@ -659,11 +678,11 @@ function ajustarTabela(vars, cols){
             cell.setAttribute("numeroDaLinha", i);
 
             if(tblDigital[i-1][j-1]){
-                cell.textContent = "V" ;
+                cell.textContent = tipoDeValor[valorEscolhido][0];
                 cell.classList.add("grid-item-true");
             } 
             else {
-                cell.textContent = "F" ;
+                cell.textContent = tipoDeValor[valorEscolhido][1];
                 cell.classList.add("grid-item-false");
             }
             cell.setAttribute("corPadrao", cell.style.backgroundColor);

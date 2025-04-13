@@ -1,8 +1,42 @@
-/** {
-    box-sizing: border-box;
+/* All rights reserved to Ntzzn.Dev */
+html{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin: 0;
     padding: 0;
-}*/
+}
+body{
+    background: #2f2f31;
+    width: max-content;
+    margin: 0;
+    padding: 0;
+}
+form{
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Controle Mobile */
+
+.scroll-container {
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+}
+
+/* Tabela */
+
+#container {
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    min-height: 70vh; 
+    flex-direction: column;
+    min-width: max-content;
+    max-width: 100%;
+    padding: 100px;
+}
 #grid-container {
     display: grid;
     gap: 1px;
@@ -18,17 +52,17 @@
     border: 1px solid #333;
     height: 30px;
     padding: 4px;
-}
-.grid-item-true{
-    background-color: #253a49;
-}
-.grid-item-false{
-    background-color: #292f31;
-}
-.itemClicavel{
-    border-radius: 6px;
-    width: 24px;
-    background-color: #292f31;
+    &.grid-item-true{
+        background-color: #253a49;
+    }
+    &.grid-item-false{
+        background-color: #292f31;
+    }
+    &.itemClicavel{
+        border-radius: 6px;
+        width: 24px;
+        background-color: #292f31;
+    }
 }
 .grid-name {
     background-color: #1d1d1e;
@@ -41,15 +75,6 @@
     white-space: nowrap;
     height: 30px;
     padding: 4px;
-}
-#container {
-    display: flex;
-    justify-content: center; 
-    align-items: center;
-    min-height: 100vh; 
-    flex-direction: column;
-    min-width: max-content;
-    max-width: 100%;
 }
 #fundoDeTabela{
     display: flex;
@@ -91,11 +116,20 @@
     gap: 1px;
     padding-bottom: 10px;
 }
+
+/* Botões */
+
 #btns{
     display: grid;
     justify-content: center;
     align-items: center;
     grid-template-columns: repeat(3, 1fr);
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 18px;
+    &.type{
+        background-color: #56565c;
+        border-radius: 10px;
+    }
 }
 .btnDiv{
     background-color: #444446;
@@ -104,22 +138,19 @@
     width: 107px;
     text-align: center;
     border-radius: 10px;
-}
+    transition: background-color 0.5s ease;
+    &.type{
+        background-color: #56565c;
+        &.active{
+            background-color: #dbdbe2;
+        }
+    }
+} 
+.btnDiv:active:not(.type){
+    background-color: #a9a9b9;
+} 
 
-html{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-body{
-    background: #2f2f31;
-    width: max-content;
-}
-form{
-    width: 100%;
-    max-width: 500px;
-}
-
+/* Sentença */
 
 input {
     width: 100%;
@@ -134,25 +165,19 @@ input {
     backdrop-filter: blur(10px);
     font-family: monospace;
     box-sizing: border-box;
-}
-
-input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-    transition: 0.3s ease-in-out;
-}
-
-input:focus {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: #2e3442;
-    box-shadow: 0 0 10px #2e3442cc;
-}
-
-input:focus::placeholder {
-    color: transparent;
-}
-
-input:focus {
-    opacity: 1;
+    &::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+        transition: 0.3s ease-in-out;
+    }
+    &:focus {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: #2e3442;
+        box-shadow: 0 0 10px #4b4f58cc;
+        opacity: 1;
+        &::placeholder {
+            color: transparent;
+        }
+    }
 }
 label{
     color: #fff;
