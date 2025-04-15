@@ -7,9 +7,9 @@ let digitos = { indicesNum: [], indicesOp: [], indicesComp: [], resultados: [] }
 
 let valorEscolhido = 1;
 const tipoDeValor = {
-    "1": ["V", "F"],
-    "2": ["T", "F"],
-    "3": ["1", "0"]
+    "1": ["1", "0"],
+    "2": ["V", "F"],
+    "3": ["T", "F"]
 };
 
 function turnSign(event, valorAUsar){
